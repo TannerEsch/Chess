@@ -2,7 +2,7 @@ import React, {useRef} from 'react'
 import { auth, googleProvider } from '../config/firebase'
 import { createUserWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth' 
 
-export const Auth: React.FC = () => {
+    const Auth: React.FC = () => {
     const emailRef = useRef<HTMLInputElement>(null)
     const passwordRef = useRef<HTMLInputElement>(null)
     
@@ -50,3 +50,5 @@ export const Auth: React.FC = () => {
     </>
   )
 }
+
+export default Auth;

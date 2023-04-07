@@ -1,10 +1,13 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import {Auth} from './components/Auth'
+import {Auth} from './components'
+import { Navbar } from './navigation';
 import { Home } from './pages';
 import { db } from './config/firebase';
 import { getDocs, collection } from "firebase/firestore";
 import './index.css'
+
+export const DataContext = React.createContext({});
 
 const App = () => {
   const [gameList , setGameList] = useState([])
@@ -18,7 +21,6 @@ const App = () => {
               id: doc.id,
               ...doc.data()
           }))
-          console.log(filteredData)
         }catch (error){
           console.error(error)
         }
@@ -30,11 +32,14 @@ const App = () => {
 
   return (
     <>
+    <DataContext.Provider value={{ gameList, setGameList}}>
       <BrowserRouter>
+      <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
         </Routes>
       </BrowserRouter>
+      </DataContext.Provider>
     </>
   )
 }
