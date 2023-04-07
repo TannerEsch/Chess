@@ -2,7 +2,7 @@ import React, {useState, useEffect, useContext} from 'react'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {Auth} from './components'
 import { Navbar } from './navigation';
-import { Home } from './pages';
+import { Home, Play } from './pages';
 import { db } from './config/firebase';
 import { getDocs, collection } from "firebase/firestore";
 import './index.css'
@@ -37,6 +37,7 @@ const App = () => {
       <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/Play" element={<Play />} />
         </Routes>
       </BrowserRouter>
       </DataContext.Provider>
