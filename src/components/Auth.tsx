@@ -9,8 +9,11 @@ export const Auth: React.FC = () => {
     //default login
     const signIn = async () => {
     try{
-        if(emailRef.current === null || passwordRef.current === null) return alert('Please fill in all fields')
-        await createUserWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value)
+        if(emailRef.current === null || passwordRef.current === null){
+            throw new Error('null fields')
+        } else {
+            await createUserWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value)
+        }
     }
     catch(error){
         console.error(error)
