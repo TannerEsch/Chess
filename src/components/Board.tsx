@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import Draggable from "react-draggable";
 import bknight from '../assets/bknight.svg.png'
 import wknight from '../assets/wknight.svg.png'
@@ -13,253 +13,126 @@ import wrook from '../assets/wRook.svg.png'
 import bbishop from '../assets/bbishop.svg.png'
 import wbishop from '../assets/wbishop.svg.png'
 
+//class for the board squares
+class Square {
+    piece: any | null
+    row: number | null
+    column: number | string | null
+    color: string | null
+    constructor(piece: any | null, row: number | null, column: number | string | null, color: string | null) {
+        this.piece = piece
+        this.row = row
+        this.column = column
+        this.color = color
+    }
+}
+
+//array with a length of 64 to represent the 64 squares on the chess board
+
+
 
 const Board = () => {
-    const squaresRef = useRef<any>([])
-
-    function checkPieceLocation(piece: React.MouseEvent<HTMLDivElement, MouseEvent>, data: any, e: any) {
-        let pieceLocation = data.target.getBoundingClientRect()
-        squaresRef.current.forEach((square:any) => {
-            if(pieceLocation.bottom <= square.location.bottom && pieceLocation.top >= square.location.top && pieceLocation.left >= square.location.left && pieceLocation.right <= square.location.right) {
-              console.log("pieceLocation--->", pieceLocation)
-              console.log("square.location--->", square.location)
-              console.log('square element ---->' , square.element)
-              console.log("square --->", square.element.id)
+const [displayBoard, setDisplayBoard] = useState<any>([])
+const chessBoardAsArray = new Array(64)
+useEffect(() => {
+    //create a new board
+    let chessBoard = new Array(8)
+    //create a new row
+    for(let i = 0; i < chessBoard.length; i++) {
+        chessBoard[i] = new Array(8)
+    }
+    //create a new column
+    for(let i = 0; i < chessBoard.length; i++) {
+        for(let j = 0; j < chessBoard[i].length; j++) {
+            chessBoard[i][j] = new Square(null, i+1, j+1, null)
+        }
+    }
+    //set the color of the squares
+    for(let i = 0; i < chessBoard.length; i++) {
+        for(let j = 0; j < chessBoard[i].length; j++) {
+            if(i % 2 === 0) {
+                if(j % 2 === 0) {
+                    chessBoard[i][j].color = 'white'
+                } else {
+                    chessBoard[i][j].color = 'green-500'
                 }
-                })
-    }    
+            } else {
+                if(j % 2 === 0) {
+                    chessBoard[i][j].color = 'green-500'
+                } else {
+                    chessBoard[i][j].color = 'white'
+                }
+            }
+        }
+    }
+    //set the pieces on the board
+    for(let i = 0; i < chessBoard.length; i++) {
+        for(let j = 0; j < chessBoard[i].length; j++) {
+            if(i === 0) {
+                if(j === 0 || j === 7) {
+                    chessBoard[i][j].piece = brook
+                } else if(j === 1 || j === 6) {
+                    chessBoard[i][j].piece = bknight
+                } else if(j === 2 || j === 5) {
+                    chessBoard[i][j].piece = bbishop
+                } else if(j === 3) {
+                    chessBoard[i][j].piece = bqueen
+                } else if(j === 4) {
+                    chessBoard[i][j].piece = bking
+                }
+            } else if(i === 1) {
+                chessBoard[i][j].piece = bpawn
+            } else if(i === 6) {
+                chessBoard[i][j].piece = wpawn
+            } else if(i === 7) {
+                if(j === 0 || j === 7) {
+                    chessBoard[i][j].piece = wrook
+                } else if(j === 1 || j === 6) {
+                    chessBoard[i][j].piece = wknight
+                } else if(j === 2 || j === 5) {
+                    chessBoard[i][j].piece = wbishop
+                } else if(j === 3) {
+                    chessBoard[i][j].piece = wqueen
+                } else if(j === 4) {
+                    chessBoard[i][j].piece = wking
+                }
+            }
+        }
+    }
+    //convert the 2d array to a 1d array
+    let index = 0
+    for(let i = 0; i < chessBoard.length; i++) {
+        for(let j = 0; j < chessBoard[i].length; j++) {
+            chessBoardAsArray[index] = chessBoard[i][j]
+            index++
+        }
+    }
+    setDisplayBoard(chessBoardAsArray)
+    }, [])
+
     return (
     <>
     <div className="flex w-screen h-screen items-center justify-center">
-        <div className='grid grid-cols-8 grid-rows-8'>
-            {
-           Array(8).fill(0).map((i, index1) => {
-            if(index1 % 2 === 0) {
-                return Array(4).fill(0).map((_, index2) => 
-                    <>
-                    <div 
-                    ref={el => el != null && squaresRef.current.push({"element": el.id, "location": el.getBoundingClientRect()})}
-                    id={`white-${index2 == 0? "A":
-                        index2 == 1? "C":
-                        index2 == 2? "E":
-                        index2 == 3? "G":
-                        null}-${Math.abs(index1-8)}`} 
-                        className="h-28 w-28 bg-white border-[1px] flex items-center border-gray-300 font-bold">
-                        <div className='mb-auto text-sm'>
-                        {Math.abs(index1-8)}
-                        {index2 == 0? "A":
-                        index2 == 1? "C":
-                        index2 == 2? "E":
-                        index2 == 3? "G":
-                        null}
-                        </div>
-                        {Math.abs(index1-8) == 2 &&
-                        <Draggable 
-                        onStart={(e, data) => {}} 
-                        onStop={(e, data) => checkPieceLocation(e?.target?.attributes[0].nodeValue, e, data)}>
-                        <img 
-                        src={wpawn}
-                        className="w-[5rem] mr-[19.5px]" />
-                        </Draggable>
-                         }    
-                        {Math.abs(index1-8) == 8 && index2 == 0 &&
-                        <Draggable 
-                        onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                        onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                        <img src={brook} className="w-[5rem] mr-[19.5px]" />
-                        </Draggable>
-                        }
-                        {Math.abs(index1-8) == 8 && index2 == 3 &&
-                        <Draggable 
-                        onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                        onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                        <img src={bknight} className="w-[5rem] mr-[19.5px]" />
-                        </Draggable>
-                        }
-                        {Math.abs(index1-8) == 8 && index2 == 1 &&
-                        <Draggable 
-                        onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                        onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                        <img src={bbishop} className="w-[5rem] mr-[19.5px]" />
-                        </Draggable>
-                        }
-                        {Math.abs(index1-8) == 8 && index2 == 2 &&
-                        <Draggable 
-                        onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                        onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                        <img src={bking} className="w-[5rem] mr-[19.5px]" />
-                        </Draggable>
-                        }
-                        </div>
-                    
-                    <div 
-                    ref={el => el != null && squaresRef.current.push({"element": el, "location": el.getBoundingClientRect()})}
-                    id={`green-${index2 == 0? "B":
-                        index2 == 1? "D":
-                        index2 == 2? "F":
-                        index2 == 3? "H":
-                        null}-${Math.abs(index1-8)}`}  
-                        className="h-28 w-28 bg-green-500 border-[1px] flex items-center border-gray-300 font-bold">
-                    <div className='mb-auto text-sm'>
-                        {Math.abs(index1-8)}
-                    {index2 == 0? "B":
-                    index2 == 1? "D":
-                    index2 == 2? "F":
-                    index2 == 3? "H":
-                    null}
-                    </div>
-                    {Math.abs(index1-8) == 2 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wpawn} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                     }   
-                    {Math.abs(index1-8) == 8 && index2 == 0 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={bknight} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 8 && index2 == 3 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={brook} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 8 && index2 == 1 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={bqueen} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 8 && index2 == 2 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={bbishop} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    </div>
-                    </>    
-            )} else {
-                return Array(4).fill(0).map((_, index3) =>
-                    <>
-                    <div 
-                    ref={el => el != null && squaresRef.current.push({"element": el, "location": el.getBoundingClientRect()})}
-                    id={`white-${index3 == 0? "A":
-                        index3 == 1? "C":
-                        index3 == 2? "E":
-                        index3 == 3? "G":
-                        null}-${Math.abs(index1-8)}`}  
-                    className="h-28 w-28 bg-green-500 border-[1px] flex items-center border-gray-300 font-bold">
-                    <div className='mb-auto text-sm'>
-                    {Math.abs(index1-8)} 
-                    {index3 == 0? "A":
-                    index3 == 1? "C":
-                    index3 == 2? "E":
-                    index3 == 3? "G":
-                    null}
-                    </div>
-                    {Math.abs(index1-8) == 7 && 
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={bpawn} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 1 && index3 == 0 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wrook} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 1 && index3 == 1 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wbishop} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 1 && index3 == 2 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wking} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 1 && index3 == 3 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wknight} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    </div>
-                    <div 
-                    ref={el => el != null && squaresRef.current.push({"element": el, "location": el.getBoundingClientRect()})}
-                    id={`white-${index3 == 0? "B":
-                        index3 == 1? "D":
-                        index3 == 2? "F":
-                        index3 == 3? "H":
-                        null}-${Math.abs(index1-8)}`}  className="h-28 w-28 bg-white border-[1px] flex items-center border-gray-300 font-bold">
-                    <div className='mb-auto text-sm'>
-                    {Math.abs(index1-8)} 
-                    {index3 == 0? "B":
-                    index3 == 1? "D":
-                    index3 == 2? "F":
-                    index3 == 3? "H":
-                    null}
-                    </div>
-                    {Math.abs(index1-8) == 7 && 
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={bpawn} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 1 && index3 == 3 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wrook} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 1 && index3 == 1 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wqueen} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-                    {Math.abs(index1-8) == 1 && index3 == 2 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wbishop} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable> 
-                    }
-                    {Math.abs(index1-8) == 1 && index3 == 0 &&
-                    <Draggable 
-                    onStart={(e, data) => console.log(e?.target?.attributes[0].nodeValue)} 
-                    onStop={(e, data) => console.log(e?.target?.attributes[0].nodeValue)}>
-                    <img src={wknight} className="w-[5rem] mr-[19.5px]" />
-                    </Draggable>
-                    }
-
-                    </div>
-                    </>       
-            )}
-        }
-           )}
+    <div className='grid grid-cols-8 grid-rows-8'>
+        {displayBoard?.map((square:any, index:number) => 
+                <div className={`bg-${square.color} w-24 h-24 text-black text-2xl border-[1px] border-gray-300`} key={index}>{square.row} {square.column}</div>
+        )}
         </div>
     </div>
+
     </>
   )
 }
 
-export default Board
+export default Board 
+    // function checkPieceLocation(piece: React.MouseEvent<HTMLDivElement, MouseEvent>, data: any, e: any) {
+    //     let pieceLocation = data.target.getBoundingClientRect()
+    //     squaresRef.current.forEach((square:any) => {
+    //         if(pieceLocation.bottom <= square.location.bottom && pieceLocation.top >= square.location.top && pieceLocation.left >= square.location.left && pieceLocation.right <= square.location.right) {
+    //         //   console.log("pieceLocation--->", pieceLocation)
+    //         //   console.log("square.location--->", square.location)
+    //         //   console.log('square element ---->' , square.element)
+    //           console.log("square --->", square.element)
+    //             }
+    //             })
+    // } 
