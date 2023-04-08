@@ -44,7 +44,7 @@ useEffect(() => {
     //create a new column
     for(let i = 0; i < chessBoard.length; i++) {
         for(let j = 0; j < chessBoard[i].length; j++) {
-            chessBoard[i][j] = new Square(null, i+1, j+1, null)
+            chessBoard[i][j] = new Square(null, Math.abs(i-8), j+1, null)
         }
     }
     //set the color of the squares
@@ -54,11 +54,11 @@ useEffect(() => {
                 if(j % 2 === 0) {
                     chessBoard[i][j].color = 'white'
                 } else {
-                    chessBoard[i][j].color = 'green-500'
+                    chessBoard[i][j].color = 'green'
                 }
             } else {
                 if(j % 2 === 0) {
-                    chessBoard[i][j].color = 'green-500'
+                    chessBoard[i][j].color = 'green'
                 } else {
                     chessBoard[i][j].color = 'white'
                 }
@@ -107,6 +107,30 @@ useEffect(() => {
             index++
         }
     }
+
+    //convert columns to letters
+    for(let i = 0; i < chessBoardAsArray.length; i++) {
+        if(chessBoardAsArray[i].column === 1) {
+            chessBoardAsArray[i].column = 'A'
+        } else if(chessBoardAsArray[i].column === 2) {
+            chessBoardAsArray[i].column = 'B'
+        } else if(chessBoardAsArray[i].column === 3) {
+            chessBoardAsArray[i].column = 'C'
+        } else if(chessBoardAsArray[i].column === 4) {
+            chessBoardAsArray[i].column = 'D'
+        } else if(chessBoardAsArray[i].column === 5) {
+            chessBoardAsArray[i].column = 'E'
+        } else if(chessBoardAsArray[i].column === 6) {
+            chessBoardAsArray[i].column = 'F'
+        } else if(chessBoardAsArray[i].column === 7) {
+            chessBoardAsArray[i].column = 'G'
+        } else if(chessBoardAsArray[i].column === 8) {
+            chessBoardAsArray[i].column = 'H'
+        }
+    }
+
+
+    //set the state of the board
     setDisplayBoard(chessBoardAsArray)
     }, [])
 
@@ -115,7 +139,17 @@ useEffect(() => {
     <div className="flex w-screen h-screen items-center justify-center">
     <div className='grid grid-cols-8 grid-rows-8'>
         {displayBoard?.map((square:any, index:number) => 
-                <div className={`bg-${square.color} w-24 h-24 text-black text-2xl border-[1px] border-gray-300`} key={index}>{square.row} {square.column}</div>
+                <div style={{background: square.color }} className="w-28 h-28 flex flex-col items-center justify-center text-black font-bold" key={index}>
+
+                    <div className='flex w-[100%] justify-start mb-auto'>
+                    {square.column === 'A' &&<div>{square.row}</div>}
+                    {square.row === 1 && <div>{square.column}</div>}
+                    </div>
+
+                    {square.piece && 
+                        <img src={square.piece} className='mb-4 w-20 h-20' />
+                    }
+                </div>
         )}
         </div>
     </div>
